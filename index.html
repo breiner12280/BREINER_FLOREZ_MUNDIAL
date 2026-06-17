@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación: De la IA a GitHub - Los Simpson Edition</title>
+    <style>
+        :root {
+            --simpson-yellow: #FFD90F;
+            --simpson-blue: #87CEEB;
+            --simpson-dark: #1E3A8A;
+            --simpson-orange: #F97316;
+            --simpson-white: #FFFFFF;
+            --simpson-gray: #374151;
+            --simpson-light: #FEF3C7;
+            --font-display: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-display);
+            background: linear-gradient(180deg, var(--simpson-blue) 0%, #E0F2FE 100%);
+            color: var(--simpson-gray);
+            overflow-x: hidden;
+        }
+
+        /* Navegación de slides */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .nav-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--simpson-white);
+            border: 2px solid var(--simpson-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--simpson-yellow);
+            transform: scale(1.3);
+        }
+
+        /* Slide base */
+        .slide {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+            position: relative;
+            scroll-snap-align: start;
+        }
+
+        .slide-container {
+            max-width: 1100px;
+            width: 100%;
+            background: var(--simpson-white);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(30, 58, 138, 0.15);
+            border: 4px solid var(--simpson-yellow);
+            position: relative;
+        }
+
+        .slide-container::before {
+            content: "🍩";
+            position: absolute;
+            top: -25px;
+            right: 40px;
+            font-size: 40px;
+            transform: rotate(15deg);
+        }
+
+        /* Tipografía */
+        h1 {
+            font-size: 3rem;
+            color: var(--simpson-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--simpson-dark);
+            margin-bottom: 25px;
+            border-bottom: 4px solid var(--simpson-yellow);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--simpson-orange);
+            margin: 20px 0 10px;
+        }
+
+        p, li {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Código */
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 5px solid var(--simpson-yellow);
+        }
+
+        .code-block .tag { color: #569CD6; }
+        .code-block .attr { color: #9CDCFE; }
+        .code-block .value { color: #CE9178; }
+        .code-block .comment { color: #6A9955; }
+        .code-block .selector { color: #D7BA7D; }
+        .code-block .property { color: #9CDCFE; }
+
+        /* Destacados */
+        .highlight-box {
+            background: var(--simpson-light);
+            border-left: 5px solid var(--simpson-yellow);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box {
+            background: #FFF7ED;
+            border-left: 5px solid var(--simpson-orange);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* Grid para dos columnas */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .two-col img {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        /* Paso numerado */
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--simpson-yellow);
+            color: var(--simpson-dark);
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            font-size: 1.3rem;
+            color: var(--simpson-dark);
+            margin-bottom: 5px;
+        }
+
+        /* Portada especial */
+        .cover-slide {
+            background: radial-gradient(circle at 50% 50%, var(--simpson-yellow) 0%, var(--simpson-orange) 100%);
+        }
+
+        .cover-slide .slide-container {
+            background: var(--simpson-white);
+            text-align: center;
+        }
+
+        .cover-slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        .cover-slide .subtitle {
+            font-size: 1.5rem;
+            color: var(--simpson-orange);
+            font-weight: 600;
+        }
+
+        .cover-slide .emoji {
+            font-size: 5rem;
+            margin: 20px 0;
+        }
+
+        /* Reto slide */
+        .reto-slide {
+            background: linear-gradient(135deg, var(--simpson-dark) 0%, var(--simpson-orange) 100%);
+        }
+
+        .reto-slide .slide-container {
+            background: var(--simpson-white);
+        }
+
+        .reto-slide h2 {
+            color: var(--simpson-orange);
+            border-bottom-color: var(--simpson-orange);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+            .slide-container {
+                padding: 25px;
+            }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.6rem; }
+            .two-col { grid-template-columns: 1fr; }
+            .nav-dots { display: none; }
+        }
+
+        /* Animación suave */
+        .slide-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: var(--simpson-gray);
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación lateral -->
+    <div class="nav-dots">
+        <div class="nav-dot active" onclick="goToSlide(0)"></div>
+        <div class="nav-dot" onclick="goToSlide(1)"></div>
+        <div class="nav-dot" onclick="goToSlide(2)"></div>
+        <div class="nav-dot" onclick="goToSlide(3)"></div>
+        <div class="nav-dot" onclick="goToSlide(4)"></div>
+        <div class="nav-dot" onclick="goToSlide(5)"></div>
+        <div class="nav-dot" onclick="goToSlide(6)"></div>
+        <div class="nav-dot" onclick="goToSlide(7)"></div>
+        <div class="nav-dot" onclick="goToSlide(8)"></div>
+        <div class="nav-dot" onclick="goToSlide(9)"></div>
+        <div class="nav-dot" onclick="goToSlide(10)"></div>
+        <div class="nav-dot" onclick="goToSlide(11)"></div>
+        <div class="nav-dot" onclick="goToSlide(12)"></div>
+        <div class="nav-dot" onclick="goToSlide(13)"></div>
+        <div class="nav-dot" onclick="goToSlide(14)"></div>
+        <div class="nav-dot" onclick="goToSlide(15)"></div>
+        <div class="nav-dot" onclick="goToSlide(16)"></div>
+        <div class="nav-dot" onclick="goToSlide(17)"></div>
+        <div class="nav-dot" onclick="goToSlide(18)"></div>
+    </div>
+
+    <!-- SLIDE 1: PORTADA -->
+    <section class="slide cover-slide">
+        <div class="slide-container">
+            <div class="emoji">🤖⚽🍩</div>
+            <h1>De la IA a GitHub</h1>
+            <p class="subtitle">Cómo crear una página web con Inteligencia Artificial y publicarla al mundo</p>
+            <p style="margin-top: 30px; font-size: 1.2rem;">Una guía estilo <strong>Los Simpson</strong> para aprendices de Análisis y Desarrollo de Software</p>
+            <div class="footer-note">Instructor: Juan Manuel | TalentoTech</div>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: ¿QUÉ VAMOS A APRENDER? -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🎯 ¿Qué vamos a aprender hoy?</h2>
+            <div class="highlight-box">
+                <p><strong>Objetivo:</strong> Entender cómo una IA genera código web y cómo llevar ese código a internet usando GitHub.</p>
+            </div>
+            <ol>
+                <li>🧠 <strong>Prompting efectivo:</strong> Cómo pedirle a la IA que cree una página web completa.</li>
+                <li>📄 <strong>Anatomía HTML:</strong> Qué hace cada etiqueta en la estructura de la página.</li>
+                <li>🎨 <strong>Magia CSS:</strong> Cómo se convierte el código en algo visual y atractivo.</li>
+                <li>🚀 <strong>GitHub Pages:</strong> Subir tu creación y obtener una URL real.</li>
+                <li>🌐 <strong>Compartir:</strong> Mostrar tu trabajo al mundo (¡y a Homero!).</li>
+            </ol>
+            <p style="margin-top: 20px; text-align: center; font-size: 1.1rem;">
+                <em>"¡Woo-hoo! ¡Con IA y GitHub, hasta yo puedo hacer una página web!"</em> — Homero Simpson
+            </p>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: EL PROMPT -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🧠 Paso 0: El Prompt (La receta)</h2>
+            <p>Antes de tocar código, le pedimos a la IA que cree la página. Un buen prompt incluye:</p>
+            <div class="code-block">
+<span class="comment"># Ejemplo de prompt para la IA</span>
+"Ayúdame a crear una página web sobre la Copa Mundial de Fútbol 1994 
+que contenga:
+- Todos los equipos participantes
+- Un mapa conceptual del torneo (quién ganó y perdió)
+- Usar HTML y CSS puro
+- Que sea visual y fácil de entender"
+            </div>
+            <div class="warning-box">
+                <strong>💡 Tip de Bart:</strong> Mientras más específico seas, mejor resultado obtienes. 
+                Incluye formato, colores, datos específicos y tipo de interacción.
+            </div>
+            <p>La IA genera el código HTML completo con estilos CSS embebidos. ¡No necesitas instalar nada!</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: ANATOMÍA HTML -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>📄 La anatomía de un archivo HTML</h2>
+            <p>Todo documento HTML tiene una estructura básica obligatoria:</p>
+            <div class="code-block">
+<span class="tag">&lt;!DOCTYPE html&gt;</span>           <span class="comment">&lt;!-- Declara que es HTML5 --&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="value">"es"</span><span class="tag">&gt;</span>           <span class="comment">&lt;!-- Raíz del documento, idioma español --&gt;</span>
+  <span class="tag">&lt;head&gt;</span>                    <span class="comment">&lt;!-- Metadatos: título, estilos, configuración --&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="value">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>Mi Página<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;style&gt;</span>...CSS aquí...<span class="tag">&lt;/style&gt;</span>
+  <span class="tag">&lt;/head&gt;</span>
+  <span class="tag">&lt;body&gt;</span>                    <span class="comment">&lt;!-- Todo lo visible va aquí --&gt;</span>
+    <span class="tag">&lt;h1&gt;</span>Hola Springfield<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span>
+            </div>
+            <div class="two-col">
+                <div class="highlight-box">
+                    <strong>&lt;head&gt;</strong>: El "cerebro" invisible. Contiene título, estilos, fuentes y configuración.
+                </div>
+                <div class="highlight-box">
+                    <strong>&lt;body&gt;</strong>: El "cuerpo" visible. Todo lo que el usuario ve y interactúa.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: ETIQUETAS SEMÁNTICAS -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🏗️ Etiquetas semánticas: La estructura lógica</h2>
+            <p>HTML5 introdujo etiquetas que describen su propósito. En nuestra página del Mundial usamos:</p>
+            <div class="code-block">
+<span class="tag">&lt;header&gt;</span>     <span class="comment">&lt;!-- Encabezado principal: título, nav --&gt;</span>
+<span class="tag">&lt;nav&gt;</span>        <span class="comment">&lt;!-- Navegación: enlaces internos --&gt;</span>
+<span class="tag">&lt;main&gt;</span>       <span class="comment">&lt;!-- Contenido principal único de la página --&gt;</span>
+<span class="tag">&lt;section&gt;</span>    <span class="comment">&lt;!-- Sección temática: equipos, mapa --&gt;</span>
+<span class="tag">&lt;article&gt;</span>    <span class="comment">&lt;!-- Artículo independiente: cada confederación --&gt;</span>
+<span class="tag">&lt;div&gt;</span>        <span class="comment">&lt;!-- Contenedor genérico para agrupar --&gt;</span>
+<span class="tag">&lt;h1&gt;</span> a <span class="tag">&lt;h3&gt;</span>   <span class="comment">&lt;!-- Jerarquía de títulos --&gt;</span>
+<span class="tag">&lt;p&gt;</span>          <span class="comment">&lt;!-- Párrafos de texto --&gt;</span>
+<span class="tag">&lt;ul&gt;</span> / <span class="tag">&lt;li&gt;</span> <span class="comment">&lt;!-- Listas desordenadas y items --&gt;</span>
+            </div>
+            <div class="warning-box">
+                <strong>🎭 Como diría Lisa:</strong> Usar etiquetas semánticas no es solo "ser correcto", 
+                ayuda a que lectores de pantalla, motores de búsqueda y tu futuro yo entiendan la estructura.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: HEADER Y NAV -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🧭 El Header: La puerta de entrada</h2>
+            <p>En la página del Mundial, el <code>&lt;header&gt;</code> cumple dos funciones: presentar el título y permitir navegación rápida.</p>
+            <div class="code-block">
+<span class="tag">&lt;header&gt;</span>
+  <span class="tag">&lt;h1&gt;</span>Copa Mundial de Fútbol 1994 (EE. UU.)<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;p&gt;</span>Resumen visual del Mundial...<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;nav&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#equipos"</span><span class="tag">&gt;</span>Selecciones<span class="tag">&lt;/a&gt;</span>
+    <span class="tag">&lt;a</span> <span class="attr">href</span>=<span class="value">"#mapa-mundial"</span><span class="tag">&gt;</span>Mapa del torneo<span class="tag">&lt;/a&gt;</span>
+  <span class="tag">&lt;/nav&gt;</span>
+<span class="tag">&lt;/header&gt;</span>
+            </div>
+            <div class="highlight-box">
+                <strong>¿Qué pasa aquí?</strong><br>
+                • <code>&lt;h1&gt;</code> es el título principal (solo uno por página).<br>
+                • <code>&lt;nav&gt;</code> contiene enlaces internos con <code>href="#id"</code> que saltan a secciones.<br>
+                • <code>&lt;p&gt;</code> describe el propósito de la página para el usuario.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: SECCIÓN DE EQUIPOS -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>⚽ Sección de Equipos: Grid de confederaciones</h2>
+            <p>Usamos una <strong>grid CSS</strong> para mostrar las 5 confederaciones en tarjetas automáticas.</p>
+            <div class="code-block">
+<span class="tag">&lt;section</span> <span class="attr">id</span>=<span class="value">"equipos"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h2&gt;</span>Selecciones participantes<span class="tag">&lt;/h2&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"confed-grid"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;article</span> <span class="attr">class</span>=<span class="value">"confed"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;h3&gt;</span>África<span class="tag">&lt;/h3&gt;</span>
+      <span class="tag">&lt;ul&gt;</span>
+        <span class="tag">&lt;li&gt;</span>Camerún<span class="tag">&lt;/li&gt;</span>
+        <span class="tag">&lt;li&gt;</span>Marruecos<span class="tag">&lt;/li&gt;</span>
+        <span class="tag">&lt;li&gt;</span>Nigeria<span class="tag">&lt;/li&gt;</span>
+      <span class="tag">&lt;/ul&gt;</span>
+    <span class="tag">&lt;/article&gt;</span>
+    <span class="comment">&lt;!-- más artículos para Asia, Europa, etc. --&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/section&gt;</span>
+            </div>
+            <p><strong>¿Por qué <code>&lt;article&gt;</code>?</strong> Cada confederación es un contenido independiente y reutilizable. 
+            <strong>¿Por qué <code>id="equipos"</code>?</strong> Para que el enlace del nav pueda saltar directamente aquí.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: MAPA DEL TORNEO -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🏆 Mapa del Torneo: El bracket visual</h2>
+            <p>La parte más compleja: mostrar quién ganó y quién perdió en cada fase. Usamos una estructura de columnas:</p>
+            <div class="code-block">
+<span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"tournament-map"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"round"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;h3&gt;</span>Octavos<span class="tag">&lt;/h3&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"match"</span><span class="tag">&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"team-line"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"winner"</span><span class="tag">&gt;</span>Rumania<span class="tag">&lt;/span&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"score"</span><span class="tag">&gt;</span>3<span class="tag">&lt;/span&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+      <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="value">"team-line"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"loser"</span><span class="tag">&gt;</span>Argentina<span class="tag">&lt;/span&gt;</span>
+        <span class="tag">&lt;span</span> <span class="attr">class</span>=<span class="value">"score"</span><span class="tag">&gt;</span>2<span class="tag">&lt;/span&gt;</span>
+      <span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+            </div>
+            <div class="highlight-box">
+                <strong>Lógica visual:</strong> La clase <code>.winner</code> aplica color verde y negrita. 
+                La clase <code>.loser</code> aplica texto tachado. Las 4 columnas CSS representan: Octavos → Cuartos → Semis → Final.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: CSS - VARIABLES Y DISEÑO -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🎨 CSS: Variables y el sistema de diseño</h2>
+            <p>Al inicio del CSS definimos <strong>variables personalizadas</strong> (custom properties) para mantener consistencia:</p>
+            <div class="code-block">
+<span class="selector">:root</span> {
+  <span class="property">--bg</span>: <span class="value">#0b1020</span>;
+  <span class="property">--card</span>: <span class="value">#161b30</span>;
+  <span class="property">--accent</span>: <span class="value">#00c896</span>;
+  <span class="property">--text</span>: <span class="value">#f4f4f6</span>;
+  <span class="property">--radius</span>: <span class="value">10px</span>;
+  <span class="property">--space</span>: <span class="value">1rem</span>;
+}
+            </div>
+            <div class="two-col">
+                <div>
+                    <h3>Ventajas de usar variables</h3>
+                    <ul>
+                        <li>Cambias un color en un solo lugar y se aplica a toda la página.</li>
+                        <li>Código más legible y profesional.</li>
+                        <li>Fácil de adaptar a modo oscuro/claro.</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <strong>🍩 Analogía de Homero:</strong> Es como tener una receta de donas: 
+                    si cambias la cantidad de azúcar en la receta, ¡todas las donas cambian!
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: CSS GRID Y LAYOUT -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>📐 CSS Grid: El layout inteligente</h2>
+            <p>Para las tarjetas de confederaciones usamos <strong>CSS Grid</strong>, que distribuye automáticamente los elementos:</p>
+            <div class="code-block">
+<span class="selector">.confed-grid</span> {
+  <span class="property">display</span>: <span class="value">grid</span>;
+  <span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fit, minmax(180px, 1fr))</span>;
+  <span class="property">gap</span>: <span class="value">var(--space)</span>;
+}
+            </div>
+            <div class="highlight-box">
+                <strong>Traducción:</strong> "Crea columnas automáticamente. Cada columna mide mínimo 180px y máximo lo que quepa. 
+                El espacio entre columnas es 1rem (16px)."
+            </div>
+            <p>Para el mapa del torneo usamos un grid de 4 columnas fijas:</p>
+            <div class="code-block">
+<span class="selector">.tournament-map</span> {
+  <span class="property">display</span>: <span class="value">grid</span>;
+  <span class="property">grid-template-columns</span>: <span class="value">repeat(4, minmax(0, 1fr))</span>;
+  <span class="property">gap</span>: <span class="value">var(--space)</span>;
+}
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: CSS COMPONENTES -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🧩 CSS: Componentes visuales</h2>
+            <p>Cada "partido" es una tarjeta estilizada con bordes, sombras y efectos hover:</p>
+            <div class="code-block">
+<span class="selector">.match</span> {
+  <span class="property">border-radius</span>: <span class="value">var(--radius)</span>;
+  <span class="property">background</span>: <span class="value">radial-gradient(circle at top, rgba(255,255,255,0.02), rgba(7,11,30,0.9))</span>;
+  <span class="property">border</span>: <span class="value">1px solid var(--border)</span>;
+  <span class="property">padding</span>: <span class="value">0.55rem 0.65rem</span>;
+  <span class="property">transition</span>: <span class="value">all 0.2s ease-out</span>;
+}
+
+<span class="selector">.match:hover::after</span> {
+  <span class="property">opacity</span>: <span class="value">1</span>;  <span class="comment">/* Borde verde brillante al pasar el mouse */</span>
+}
+
+<span class="selector">.winner</span> { <span class="property">color</span>: <span class="value">var(--accent)</span>; <span class="property">font-weight</span>: <span class="value">600</span>; }
+<span class="selector">.loser</span> { <span class="property">color</span>: <span class="value">var(--muted)</span>; <span class="property">text-decoration</span>: <span class="value">line-through</span>; }
+            </div>
+            <div class="warning-box">
+                <strong>✨ Truco de Maggie:</strong> El <code>::after</code> es un pseudo-elemento que crea un borde invisible 
+                que solo aparece al hacer hover. ¡Eso da la sensación de que la tarjeta "enciende"!
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: RESPONSIVE -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>📱 Responsive: Que se vea en el celular</h2>
+            <p>El diseño debe adaptarse a pantallas pequeñas. Usamos <strong>Media Queries</strong>:</p>
+            <div class="code-block">
+<span class="selector">@media</span> (<span class="property">max-width</span>: <span class="value">768px</span>) {
+  <span class="selector">.slide</span> {
+    <span class="property">padding</span>: <span class="value">30px 20px</span>;
+  }
+  <span class="selector">.two-col</span> {
+    <span class="property">grid-template-columns</span>: <span class="value">1fr</span>;  <span class="comment">/* Una sola columna */</span>
+  }
+  <span class="selector">.nav-dots</span> {
+    <span class="property">display</span>: <span class="value">none</span>;  <span class="comment">/* Ocultar navegación lateral */</span>
+  }
+}
+            </div>
+            <div class="highlight-box">
+                <strong>📏 ¿Qué hace?</strong> Si la pantalla mide 768px o menos (tablets y celulares), 
+                el layout de dos columnas se convierte en una sola columna y se ajustan los espaciados.
+            </div>
+            <p style="text-align: center; margin-top: 20px;">
+                <em>"En el celular, como en la casa de los Simpson: todo debe caber... aunque sea apretado."</em>
+            </p>
+        </div>
+    </section>
+
+    <!-- SLIDE 13: INTRO A GITHUB -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🚀 ¿Qué es GitHub y por qué lo usamos?</h2>
+            <div class="two-col">
+                <div>
+                    <h3>GitHub es:</h3>
+                    <ul>
+                        <li>Una <strong>plataforma de almacenamiento</strong> de código en la nube.</li>
+                        <li>Un sistema de <strong>control de versiones</strong> (con Git).</li>
+                        <li>Una <strong>red social de desarrolladores</strong>.</li>
+                        <li>Un servidor <strong>gratuito</strong> para publicar webs estáticas.</li>
+                    </ul>
+                </div>
+                <div class="highlight-box">
+                    <h3>GitHub Pages</h3>
+                    <p>Servicio incluido que convierte tu repositorio en una página web real con URL del tipo:</p>
+                    <p><code>tuusuario.github.io/mundial-1994</code></p>
+                    <p>¡Gratis, sin publicidad y con tu propio dominio!</p>
+                </div>
+            </div>
+            <div class="warning-box">
+                <strong>🎭 Analogía de Krusty:</strong> GitHub es tu camerino: guardas tus chistes (código), 
+                puedes volver a versiones anteriores si algo falla, y al final subes al escenario (GitHub Pages).
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 14: CREAR CUENTA Y REPO -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>📝 Paso 1: Cuenta y Repositorio</h2>
+
+            <div class="step-item">
+                <span class="step-number">1</span>
+                <div class="step-content">
+                    <h4>Ir a github.com</h4>
+                    <p>Entra con tu cuenta. Si no tienes, créala con tu correo (es gratis).</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">2</span>
+                <div class="step-content">
+                    <h4>Crear nuevo repositorio</h4>
+                    <p>Haz clic en el botón <strong>+</strong> arriba a la derecha → <strong>New repository</strong>.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">3</span>
+                <div class="step-content">
+                    <h4>Configurar nombre</h4>
+                    <p>Escribe un nombre descriptivo: <code>mundial-1994</code> o <code>mi-primera-web</code>.</p>
+                    <p>Selecciona <strong>Public</strong> (para que GitHub Pages funcione gratis).</p>
+                    <p>NO marques "Add README" si vas a subir tu propio archivo.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">4</span>
+                <div class="step-content">
+                    <h4>Crear</h4>
+                    <p>Haz clic en <strong>Create repository</strong>. ¡Listo! Ya tienes tu caja en la nube.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 15: SUBIR ARCHIVOS -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>📤 Paso 2: Subir tu archivo HTML</h2>
+
+            <div class="step-item">
+                <span class="step-number">5</span>
+                <div class="step-content">
+                    <h4>Preparar el archivo local</h4>
+                    <p>En tu PC, guarda el código en un archivo llamado <strong>index.html</strong> (¡el nombre importa!). 
+                    Guarda dentro de una carpeta, por ejemplo: <code>mi-proyecto/</code>.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">6</span>
+                <div class="step-content">
+                    <h4>Subir vía web (método más simple)</h4>
+                    <p>En tu repositorio de GitHub, haz clic en <strong>Add file → Upload files</strong>.</p>
+                    <p>Arrastra <code>index.html</code> a la zona de carga o selecciónalo.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">7</span>
+                <div class="step-content">
+                    <h4>Confirmar el "commit"</h4>
+                    <p>GitHub te pedirá un mensaje. Escribe algo como: <em>"Agregar página Mundial 1994"</em>.</p>
+                    <p>Haz clic en <strong>Commit changes</strong>. Esto guarda la versión en el historial.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">8</span>
+                <div class="step-content">
+                    <h4>Verificar</h4>
+                    <p>Recarga la página del repositorio. Debes ver <code>index.html</code> listado en la raíz.</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Importante:</strong> El archivo debe llamarse exactamente <code>index.html</code> y estar en la raíz 
+                (no dentro de subcarpetas), para que GitHub Pages lo reconozca automáticamente como página de inicio.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 16: GITHUB PAGES -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>🌐 Paso 3: Activar GitHub Pages</h2>
+
+            <div class="step-item">
+                <span class="step-number">9</span>
+                <div class="step-content">
+                    <h4>Ir a Settings</h4>
+                    <p>En tu repositorio, haz clic en la pestaña <strong>Settings</strong> (la última, arriba).</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">10</span>
+                <div class="step-content">
+                    <h4>Buscar la sección Pages</h4>
+                    <p>En el menú lateral izquierdo, busca y haz clic en <strong>Pages</strong>.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">11</span>
+                <div class="step-content">
+                    <h4>Seleccionar la fuente</h4>
+                    <p>En "Source" o "Branch", selecciona <strong>main</strong> y carpeta <strong>/ (root)</strong>.</p>
+                    <p>Haz clic en <strong>Save</strong>.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">12</span>
+                <div class="step-content">
+                    <h4>Esperar y copiar la URL</h4>
+                    <p>GitHub construye tu sitio en segundos. Aparecerá un mensaje verde con la URL:</p>
+                    <p><code>https://tu-usuario.github.io/mundial-1994/</code></p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <strong>🎉 ¡Woo-hoo! Tu página ya está en internet!</strong> Puedes compartir ese enlace con cualquier persona del mundo.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 17: VERIFICAR Y COMPARTIR -->
+    <section class="slide">
+        <div class="slide-container">
+            <h2>✅ Paso 4: Verificar y compartir</h2>
+
+            <div class="step-item">
+                <span class="step-number">13</span>
+                <div class="step-content">
+                    <h4>Abrir la URL</h4>
+                    <p>Copia la URL de GitHub Pages, pégala en tu navegador y verifica que la página se ve correctamente.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">14</span>
+                <div class="step-content">
+                    <h4>Probar en el celular</h4>
+                    <p>Abre la URL en tu celular. Si aplicaste responsive design, debe verse bien también en pantalla pequeña.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">15</span>
+                <div class="step-content">
+                    <h4>Compartir</h4>
+                    <p>Envía el enlace por WhatsApp, pégalo en el foro de la clase, o inclúyelo en tu portafolio.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <span class="step-number">16</span>
+                <div class="step-content">
+                    <h4>Actualizar (bonus)</h4>
+                    <p>Si mejoras la página, sube el archivo de nuevo con el mismo nombre. GitHub Pages se actualizará automáticamente en pocos minutos.</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>🍺 Consejo de Barney:</strong> Si algo no se ve bien, presiona <strong>Ctrl+F5</strong> (Windows) 
+                o <strong>Cmd+Shift+R</strong> (Mac) para forzar recarga sin caché.
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 18: RETO -->
+    <section class="slide reto-slide">
+        <div class="slide-container">
+            <h2>🎯 Reto para los aprendices</h2>
+            <p>El verdadero aprendizaje está en <strong>hacerlo ustedes mismos</strong>. Su misión:</p>
+
+            <div class="highlight-box">
+                <h3>🍩 El Desafío Simpson</h3>
+                <ol>
+                    <li>Piensen en un tema que les apasione (música, videojuegos, comida, deportes, Los Simpson...).</li>
+                    <li>Usen una IA (ChatGPT, Gemini, Claude, etc.) para generar una página web completa sobre ese tema.</li>
+                    <li>Revisen el código: identifiquen las etiquetas HTML y las reglas CSS que usó la IA.</li>
+                    <li>Personalicen algo: cambien un color, un texto o una imagen.</li>
+                    <li>Suban la página a GitHub siguiendo los 16 pasos que acabamos de ver.</li>
+                    <li>Compartan la URL en el chat de la clase.</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                <strong>📋 Entregable:</strong> Enviar por la plataforma: (1) el enlace de GitHub Pages funcionando, 
+                y (2) una captura de pantalla del código mostrando al menos 3 etiquetas HTML que identificaron.
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; font-size: 1.3rem;">
+                <strong>"¡No dejen que la IA haga todo! Entiendan el código, domínenlo, y luego suban su obra maestra."</strong><br>
+                <span style="font-size: 1rem; color: var(--simpson-gray);">— Lisa Simpson (probablemente)</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- SLIDE 19: CIERRE -->
+    <section class="slide cover-slide">
+        <div class="slide-container">
+            <div class="emoji">💻🚀🍩</div>
+            <h1>¡A codear se ha dicho!</h1>
+            <p style="font-size: 1.3rem; margin-top: 20px;">
+                Ya saben cómo la IA genera código, cómo funciona la estructura web, <br>
+                y cómo llevar sus proyectos a internet con GitHub Pages.
+            </p>
+            <div style="margin-top: 40px; font-size: 1.1rem;">
+                <p><strong>Recursos útiles:</strong></p>
+                <p>🔗 github.com | 🔗 developer.mozilla.org (MDN)</p>
+                <p>🤖 ChatGPT, Gemini, Claude (para generar y explicar código)</p>
+            </div>
+            <div class="footer-note" style="margin-top: 40px;">
+                TalentoTech | Análisis y Desarrollo de Software<br>
+                Instructor Juan Manuel
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navegación entre slides
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.nav-dot');
+
+        function updateDots() {
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function goToSlide(index) {
+            if (index >= 0 && index < slides.length) {
+                currentSlide = index;
+                slides[index].scrollIntoView({ behavior: 'smooth' });
+                updateDots();
+            }
+        }
+
+        // Teclado: flechas y espacio
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                goToSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                goToSlide(currentSlide - 1);
+            }
+        });
+
+        // Scroll observador para actualizar dots
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(slides).indexOf(entry.target);
+                    currentSlide = index;
+                    updateDots();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        slides.forEach(slide => observer.observe(slide));
+    </script>
+</body>
+</html>
